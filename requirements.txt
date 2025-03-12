@@ -9,3 +9,5 @@ python-dotenv
 pydantic
 pytest
 email-validator
+fpdf
+langchain_community
