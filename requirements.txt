@@ -1,0 +1,11 @@
+langchain
+langgraph
+langchain-core
+langchain-openai
+langchain-text-splitters
+openai
+streamlit
+python-dotenv
+pydantic
+pytest
+email-validator
