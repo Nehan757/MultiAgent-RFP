@@ -10,25 +10,29 @@ This project implements an AI-driven procurement automation system using LangCha
 - **Supplier Communication**: Sends approved RFPs to suppliers via email
 - **User Interface**: Streamlit-based UI for submitting requests and tracking progress
 - **Multi-agent Orchestration**: LangGraph workflow for coordinating the agents
+- **Governance & Guardrails**: Built-in safeguards for budget limits and content validation
 
 ## System Architecture
 
 ### Workflow
 
 1. User submits a procurement request through the UI
-2. Classification Agent categorizes the request
-3. RFP Generation Agent creates a detailed RFP document
-4. Approval Agent validates the RFP and checks for issues
-5. If approved, the RFP is sent to suppliers
-6. User receives feedback throughout the process
+2. Classification Agent categorizes the request into one of four categories
+3. RFP Generation Agent creates a detailed RFP document following category-specific templates
+4. Approval Agent validates the RFP and checks for issues or anomalies
+5. If approved, the RFP is sent to suppliers via email
+6. User receives feedback throughout the process and can track status
 
 ### Components
 
 - **Agents**: Three specialized AI agents handling different parts of the workflow
-- **LangGraph Workflow**: Orchestrates the agent interactions
-- **Streamlit UI**: User interface for submitting and tracking requests
-- **Email Service**: Handles supplier communications
-- **Data Models**: Structured representation of requests and RFPs
+  - Classification Agent: Analyzes request details to determine the appropriate category
+  - RFP Generation Agent: Extracts and structures information into standardized RFP documents
+  - Approval Agent: Validates content and applies business rules before approval
+- **LangGraph Workflow**: Orchestrates the agent interactions with conditional branching
+- **Streamlit UI**: User-friendly interface for submitting and tracking requests
+- **Email Service**: Handles supplier communications with PDF generation
+- **Data Models**: Structured representation of requests and RFPs using Pydantic
 
 ## Setup Instructions
 
@@ -36,13 +40,14 @@ This project implements an AI-driven procurement automation system using LangCha
 
 - Python 3.9+
 - OpenAI API key
+- SMTP email server (for sending RFPs)
 
 ### Installation
 
 1. Clone this repository:
    ```
-   git clone https://github.com/yourusername/procurement-automation.git
-   cd procurement-automation
+   git clone https://github.com/Nehan757/MultiAgent-RFP.git
+   cd MultiAgent-RFP
    ```
 
 2. Create a virtual environment and activate it:
@@ -59,7 +64,12 @@ This project implements an AI-driven procurement automation system using LangCha
 4. Create a `.env` file in the project root with your API keys:
    ```
    OPENAI_API_KEY=your_openai_api_key
-   MODEL_NAME=gpt-4  # Or another suitable model
+   MODEL_NAME=gpt-4  # Or another suitable model like gpt-3.5-turbo
+   EMAIL_HOST=smtp.gmail.com
+   EMAIL_PORT=587
+   EMAIL_USERNAME=your_email@gmail.com
+   EMAIL_PASSWORD=your_app_password
+   EMAIL_FROM=your_sender_email@domain.com
    ```
 
 ### Running the Application
@@ -72,9 +82,15 @@ python main.py
 
 This will launch the Streamlit UI in your default web browser. Navigate to the displayed URL (typically http://localhost:8501).
 
+For a quick test of your OpenAI API connectivity:
+
+```
+python test_openai.py
+```
+
 ## API Documentation
 
-The system does not expose external APIs in this implementation, but uses internal APIs between components:
+The system uses internal APIs between components:
 
 ### Workflow API
 
@@ -85,22 +101,58 @@ The system does not expose external APIs in this implementation, but uses intern
 - Classification Agent: `classify(request: ProcurementRequest) -> ClassificationResult`
 - RFP Generation Agent: `generate_rfp(request: ProcurementRequest, classification: ClassificationResult) -> RFP`
 - Approval Agent: `validate_rfp(rfp: RFP) -> ApprovalResult`
+- Email Service: `send_rfp(rfp: RFP) -> bool`
+
+## Project Structure
+
+```
+procurement-automation/
+├── agents/                  # AI agent implementations
+│   ├── __init__.py
+│   ├── classification_agent.py
+│   ├── rfp_generation_agent.py
+│   └── approval_agent.py
+├── api/                     # API implementations
+│   ├── __init__.py
+│   └── email_service.py
+├── config/                  # Configuration settings
+│   ├── __init__.py
+│   └── settings.py
+├── models/                  # Data models
+│   ├── __init__.py
+│   ├── request.py
+│   └── rfp.py
+├── tests/                   # Unit tests
+│   └── __init__.py
+├── ui/                      # Streamlit UI
+│   ├── __init__.py
+│   └── app.py
+├── workflows/               # Workflow orchestration
+│   ├── __init__.py
+│   └── procurement_workflow.py
+├── .env                     # Environment variables (create this)
+├── .gitignore
+├── LICENSE
+├── README.md
+├── main.py                  # Application entry point
+├── requirements.txt
+└── test_openai.py           # OpenAI API test script
+```
 
 ## Assumptions and Trade-offs
 
 - **OpenAI Dependency**: The system relies on OpenAI's API for AI capabilities
-- **Simulated Email Service**: The email service is simulated for this prototype
-- **Simplified Authentication**: No authentication system is implemented
+- **Email Configuration**: For full functionality, SMTP email credentials must be provided
 - **No Persistent Storage**: Data is stored in-memory during the session
 - **Limited Feedback Loop**: The feedback collection is implemented but not processed
-- **Simplified Supplier Management**: Suppliers are hardcoded for demonstration purposes
+- **Simplified Supplier Management**: Suppliers are managed on a per-request basis
 
 ## Scalability Strategy
 
 ### Agent Deployment
 
-- Each agent would be containerized using Docker
-- Kubernetes would be used to manage agent instances
+- Each agent is designed to be containerized using Docker
+- Kubernetes can be used to manage agent instances
 - Horizontal Pod Autoscaler would adjust the number of agents based on load
 
 ### Orchestrator Scaling
@@ -119,14 +171,14 @@ The system does not expose external APIs in this implementation, but uses intern
 
 ### Implemented Guardrails
 
-- Budget threshold limit for automatic approval
-- Required sections in RFP documents
+- Budget threshold limit for automatic approval ($1,000,000)
+- Required sections in RFP documents (Overview, Requirements, Timeline, Budget)
 - Validation checks for completeness and clarity
+- Error handling throughout the workflow
 
 ### Governance Policies
 
-- Role-based access control (to be implemented)
-- Audit logging of all agent actions
+- Audit logging of all agent actions and decisions
 - Human-in-the-loop for high-value requests
 - Anomaly detection in approval process
 
@@ -145,6 +197,8 @@ The system does not expose external APIs in this implementation, but uses intern
 - **Multi-language Support**: Process requests in different languages
 - **Custom RFP Templates**: Allow customization of RFP templates by category
 - **Advanced Workflow Rules**: Complex approval hierarchies and conditions
+- **Persistent Storage**: Database integration for long-term data storage
+- **Authentication System**: User login and role-based access control
 
 ## License
 
