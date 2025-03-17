@@ -31,7 +31,7 @@ class Node(str, Enum):
     GENERATE_RFP = "generate_rfp"
     APPROVE_RFP = "approve_rfp"
     SEND_EMAIL = "send_email"
-    ERROR_HANDLER = "error_handler"  # Changed from ERROR to ERROR_HANDLER
+    ERROR_HANDLER = "error_handler" 
 
 class ProcurementWorkflow:
     """Orchestrates the multi-agent procurement process."""

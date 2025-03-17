@@ -52,6 +52,8 @@ class ClassificationAgent:
         - confidence: A numerical score between 0 and 1 indicating your confidence in the classification
         - reasoning: A brief explanation of why you selected this category
         
+        Note : if the request does not fit any of the above categories, please assign a new categorty to the request based on the contents.
+        
         JSON RESPONSE:
         """
     

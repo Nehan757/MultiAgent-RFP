@@ -56,6 +56,8 @@ class ApprovalAgent:
         - feedback: Overall feedback on the RFP
         - issues: A list of specific issues that need to be addressed (if any)
         
+        Note : Too restricitve guardrails may lead to rejection of valid RFPs. Please use your discretion. Dont be too restrictive. Allow majority of RFPs to pass through.
+        
         JSON RESPONSE:
         """
     
